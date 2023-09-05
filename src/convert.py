@@ -36,7 +36,7 @@ def convert_and_upload_supervisely_project(
     api: sly.Api, workspace_id: int, project_name: str
 ) -> sly.ProjectInfo:
     # project_name = "UAVid Semantic Segmentation"
-    dataset_path = "/mnt/d/datasetninja-raw/uavid"
+    dataset_path = "/mnt/d/datasetninja-raw/uavid/uavid_v1.5_official_release_image/uavid_v1.5_official_release_image"
     images_folder = "Images"
     masks_folder = "Labels"
 
@@ -67,7 +67,7 @@ def convert_and_upload_supervisely_project(
         tag_value = int(image_path.split("/")[-3][3:])
         tag = sly.Tag(tag_seq, value=tag_value)
 
-        if ds_name != "test":
+        if folder_name != "test":
             mask_path = image_path.replace(images_folder, masks_folder)
             if file_exists(mask_path):
                 mask_np = sly.imaging.image.read(mask_path)
@@ -96,36 +96,40 @@ def convert_and_upload_supervisely_project(
         (64, 64, 0): sly.ObjClass("human", sly.Bitmap, color=(64, 64, 0)),
     }
 
-    tag_seq = sly.TagMeta("seq", sly.TagValueType.ANY_NUMBER)
+    tag_seq = sly.TagMeta("sequence", sly.TagValueType.ANY_NUMBER)
 
     project = api.project.create(workspace_id, project_name, change_name_if_conflict=True)
 
     meta = sly.ProjectMeta(obj_classes=list(color_to_obj_class.values()), tag_metas=[tag_seq])
     api.project.update_meta(project.id, meta.to_json())
 
-    for ds_name in os.listdir(dataset_path):
-        dataset = api.dataset.create(project.id, ds_name, change_name_if_conflict=True)
+    for folder_name in os.listdir(dataset_path):
+        if dir_exists(os.path.join(dataset_path, folder_name)):
+            ds_name = folder_name.split("_")[1]
+            dataset = api.dataset.create(project.id, ds_name, change_name_if_conflict=True)
 
-        data_folders = os.path.join(dataset_path, ds_name, ds_name)
+            data_folders = os.path.join(dataset_path, folder_name)
 
-        images_pathes = glob.glob(data_folders + "/*/{}/*.png".format(images_folder))
+            images_pathes = glob.glob(data_folders + "/*/{}/*.png".format(images_folder))
 
-        progress = sly.Progress("Create dataset {}".format(ds_name), len(images_pathes))
+            progress = sly.Progress("Create dataset {}".format(ds_name), len(images_pathes))
 
-        for images_pathes_batch in sly.batched(images_pathes, batch_size=batch_size):
-            images_names_batch = []
-            for im_path in images_pathes_batch:
-                temp_prefix = im_path.split("/{}/{}/".format(ds_name, ds_name))[-1]
-                im_prefix = temp_prefix.split("/")[0]
-                im_name = im_prefix + "_" + get_file_name_with_ext(im_path)
-                images_names_batch.append(im_name)
+            for images_pathes_batch in sly.batched(images_pathes, batch_size=batch_size):
+                images_names_batch = []
+                for im_path in images_pathes_batch:
+                    temp_prefix = im_path.split("/{}/".format(folder_name))[-1]
+                    im_prefix = temp_prefix.split("/")[0]
+                    im_name = im_prefix + "_" + get_file_name_with_ext(im_path)
+                    images_names_batch.append(im_name)
 
-            img_infos = api.image.upload_paths(dataset.id, images_names_batch, images_pathes_batch)
-            img_ids = [im_info.id for im_info in img_infos]
+                img_infos = api.image.upload_paths(
+                    dataset.id, images_names_batch, images_pathes_batch
+                )
+                img_ids = [im_info.id for im_info in img_infos]
 
-            anns = [create_ann(image_path) for image_path in images_pathes_batch]
-            api.annotation.upload_anns(img_ids, anns)
+                anns = [create_ann(image_path) for image_path in images_pathes_batch]
+                api.annotation.upload_anns(img_ids, anns)
 
-            progress.iters_done_report(len(images_names_batch))
+                progress.iters_done_report(len(images_names_batch))
 
     return project
