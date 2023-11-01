@@ -75,6 +75,7 @@ AUTHORS: Optional[List[str]] = [
     "Alper Yilmaz",
     "Michael Ying Yang",
 ]
+AUTHORS_CONTACTS: Optional[List[str]] = ["k.li@utwente.nl", "michael.yang@utwente.nl"]
 
 ORGANIZATION_NAME: Optional[Union[str, List[str]]] = [
     "University of Twente, Netherlands",
@@ -89,7 +90,7 @@ ORGANIZATION_URL: Optional[Union[str, List[str]]] = [
 
 # Set '__PRETEXT__' or '__POSTTEXT__' as a key with string value to add custom text. e.g. SLYTAGSPLIT = {'__POSTTEXT__':'some text}
 SLYTAGSPLIT: Optional[Dict[str, Union[List[str], str]]] = {
-    "__PRETEXT__": "Additionally, every image contains id of its video ***sequence*** (total 30)"
+    "__PRETEXT__": "Additionally, every image contains the id of its video ***sequence*** (total 30)"
 }
 TAGS: Optional[List[str]] = None
 
@@ -138,6 +139,7 @@ def get_settings():
     settings["repository"] = REPOSITORY
     settings["citation_url"] = CITATION_URL
     settings["authors"] = AUTHORS
+    settings["authors_contacts"] = AUTHORS_CONTACTS
     settings["organization_name"] = ORGANIZATION_NAME
     settings["organization_url"] = ORGANIZATION_URL
     settings["slytagsplit"] = SLYTAGSPLIT
