@@ -1,6 +1,6 @@
 Dataset **UAVid** can be downloaded in [Supervisely format](https://developer.supervisely.com/api-references/supervisely-annotation-json-format):
 
- [Download](https://www.dropbox.com/scl/fi/4kij5qdo62hh26m4iumg8/uavid-DatasetNinja.tar?rlkey=2d8dnvtgzgr40lvqnbkq2f949&dl=1)
+ [Download](https://assets.supervisely.com/remote/eyJsaW5rIjogImZzOi8vYXNzZXRzLzE4OTJfVUFWaWQvdWF2aWQtRGF0YXNldE5pbmphLnRhciIsICJzaWciOiAibDlsVlBEK3NKWVFRb1pXMFE3MXhUZjkyUnFzMStuZ0VpZ0c3VVFJTk81OD0ifQ==)
 
 As an alternative, it can be downloaded with *dataset-tools* package:
 ``` bash
